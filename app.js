@@ -26,6 +26,7 @@ AFRAME.registerComponent("look-at-y-asakusa", lookAtYasakusaComponent);
 // sample URL: https://workspace.8thwall.app/vps-beta/?scene=detect-mesh
 const params = new URLSearchParams(document.location.search.substring(1));
 const s = params.get("scene") ? params.get("scene") : "shibuya"; // Can change to 404 page when false
+console.log("s: " + s)
 document.body.insertAdjacentHTML("beforeend", require(`./scenes/${s}.html`));
 
 // Load scene manually
