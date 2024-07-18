@@ -1,0 +1,153 @@
+<!--
+DETECT MESH SCENE
+Basic scene that uses the detect-mesh component to download and position a
+VPS mesh over any detected VPS Activated Wayspot.
+It includes an opacity slider for the mesh and wireframe toggle.
+
+removed in a-scene: vps-coaching-overlay
+-->
+
+<a-scene
+  id="ascene"
+  landing-page
+  detect-mesh-asakusa
+  gltf-model="dracoDecoderPath: https://cdn.8thwall.com/web/aframe/draco-decoder/"
+  xrextras-runtime-error
+  xrextras-loading="
+    loadBackgroundColor: #00A8EA;
+    loadImage: #loading;"
+  xrweb="enableVps: true"
+  renderer="colorManagement: true"
+  reflection="directionalLight:a-light#dirlight;"
+  >
+  <!-- Removed atm: vps-coaching-overlay = "hintImage: #cover-asakusa" -->
+
+  <a-assets>
+    <a-asset-item id="raijin-model" src="/assets/map-assets/models/raijin6.glb"></a-asset-item>
+    <img id="loading" src="/assets/map-assets/loading.png">
+  </a-assets>
+  <!-- <a-entity id="foxy" gltf-model="#foxy-model" visible="false" animation-mixer></a-entity> -->
+  <a-entity id="container" visible="true" position="0 0 0" rotation="0 0 0">
+    <a-entity id="field" position="0 0 0" rotation="0 0 0">
+      <a-box id="raijin-pos" color="red" visible="false" width="0.1" height="0.1" depth="0.1"></a-box>
+    </a-entity>
+  </a-entity>
+  <a-entity id="raijin" gltf-model="#raijin-model" scale="0.3 0.3 0.3" visible="false" animation-mixer="clip: Idle_Anim" shadow reflections="type: static" look-at-y-asakusa>
+    <a-light id="dirlight" type="directional" color="#c0c8cf" intensity="1.8" position="-5 5 5"></a-light>
+  </a-entity>
+
+  <xrextras-capture-button></xrextras-capture-button>
+  <xrextras-capture-preview></xrextras-capture-preview>
+
+  <xrextras-capture-config
+    max-duration-ms="15000"
+    max-dimension="1280"
+    enable-end-card="false"
+    file-name-prefix="my-capture-"
+  ></xrextras-capture-config>
+
+  <a-camera id="camera" position="0 1.8 4" fov="100"  near="0.01" far="10000">
+    <a-box id="camera-topleft" visible="false" width="0.1" height="0.1" depth="0.1" position="-0.38 -0.2 -1.78"></a-box>
+    <a-box id="camera-middle" visible="false" width="0.1" height="0.1" depth="0.1" position="-0.23 -0.3 -1.38"></a-box>
+    <a-box id="camera-front" visible="false" width="0.1" height="0.1" depth="0.1" position="-0.07 -0.82 -0.85"></a-box>
+  </a-camera>
+
+
+  <a-light type="ambient" color="#bedce6" intensity="1"></a-light>
+  <div id="top-section">
+    <img id="back-btn" src="/assets/map-assets/back_btn.png" class="dontselect" style="display: none">
+  </div>
+
+  <div id="top-section-photo">
+    <img
+      id="photo-icon"
+      src="/assets/map-assets/photo_inst.png"
+      class="dontselect"
+      style="display: none"
+    />
+    <img
+      id="photo-text"
+      src="/assets/map-assets/photo_inst2.png"
+      class="dontselect"
+      style="display: none"
+    />
+  </div>
+
+  <img id="video_inst" src="/assets/map-assets/video_inst.png" class="dontselect">
+
+  <div id="vps-inst" class="vps-inst" style="display: none">
+    <img  id="vps-inst-img" src="/assets/map-assets/asakusa_Inst.png" alt="Instruction Image"  class="dontselect">
+    <div class="content-column">
+      <p id="vps-inst-text">Scanning...</p>
+    </div>
+  </div>
+
+  <!-- Result UI -->
+  <div id="shareButton" style="display: none">
+    <img src="/assets/map-assets/share_btn.png" class="dontselect">
+  </div>
+  <div id="placeButton" style="display: none">
+    <img src="/assets/map-assets/place_btn.png" class="dontselect">
+  </div>
+  <div id="instruction" style="display: none">'Press the image to save it, or<br>tap the share button to save the video.'</div>
+  <img id="retryBtn" src="/assets/map-assets/retry_btn.png" alt="Retry Button" style="display: none" class="dontselect">
+  <img id="endBtn" src="/assets/map-assets/end_btn.png" alt="Retry Button" style="display: none" class="dontselect">
+  <!-- Badges -->
+  <img id="shibuyaBadge" class="badge" src="/assets/map-assets/animBadge/shibuyaBadgeAnim.png" alt="Shibuya Badge" style="display: none">
+  <img id="ryogokuBadge" class="badge" src="/assets/map-assets/animBadge/ryogokuBadgeAnim.png" alt="Ryogoku Badge" style="display: none">
+  <img id="asakusaBadge" class="badge" src="/assets/map-assets/animBadge/asakusaBadgeAnim.png" alt="Asakusa Badge" style="display: none">
+  <img id="hamarikyuBadge" class="badge" src="/assets/map-assets/animBadge/bushoBadgeAnim.png" alt="Hamarikyu Badge" style="display: none">
+
+  <!-- Detail Page -->
+  <div id="whats-this" class="layer">
+      <div class="bg">
+        <h2>Kaminarimon Gate</h2>
+        <div class="image_container">
+          <img class="stamp" src="/assets/map-assets/stamp_kaminari.png" />
+        </div>
+        <p class="description">
+          The shopping street leading to Sensoji Temple, known as Nakamise-dori,
+          is lined with about 90 shops selling crafts, souvenirs and plenty of
+          sweet and savory snacks.
+          <br />
+          <br />
+          Throughout the year, you can come across seasonal events held on the
+          temple grounds. Some of the most popular include the hozuki (Chinese
+          lantern plant) market in July and the photogenic hagoita (decorative
+          paddle) market in December.
+        </p>
+        <button id="btn-learn-more" type="button" class="learn">
+          <img src="/assets/map-assets/icon_link.svg" class="icon" />
+          Learn more
+        </button>
+        <button id="btn-close" type="button" class="close">Close</button>
+      </div>
+    </div>
+  </div>
+</a-scene>
+
+<script>
+  /* ピッチインピッチアウトによる拡大縮小を禁止 */
+  function preventZoom(e) {
+    if (e.touches.length >= 2) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
+  document.documentElement.addEventListener("touchstart", preventZoom, {
+    passive: false,
+  });
+  /* ダブルタップによる拡大を禁止 */
+  var t = 0;
+  document.documentElement.addEventListener(
+    "touchend",
+    function (e) {
+      var now = new Date().getTime();
+      if (now - t < 350) {
+        e.preventDefault();
+      }
+      t = now;
+    },
+    false
+  );
+</script>

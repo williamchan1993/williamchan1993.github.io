@@ -1,0 +1,241 @@
+<!-- Copyright (c) 2023 8th Wall, Inc. -->
+<!-- body.html is optional; elements will be added to your html body after app.js is loaded. -->
+
+<a-scene
+  landing-page
+  xrextras-loading="
+    loadBackgroundColor: #00A8EA;
+    loadImage: #loading;"
+  xrextras-runtime-error
+  xrextras-pause-on-hidden
+  renderer="colorManagement:true"
+  xrhand="allowedDevices:any; cameraDirection:back; mirroredDisplay: false;"
+  gltf-model="draco-decoder-path: https://cdn.8thwall.com/web/aframe/draco-decoder/"
+>
+  <a-assets>
+    <a-asset-item
+      id="hachi-model"
+      src="/assets/map-assets/models/hachi6.glb"
+    ></a-asset-item>
+    <img id="loading" src="/assets/map-assets/loading.png" />
+  </a-assets>
+
+  <a-camera
+    look-controls="enabled: true"
+    wasd-controls="enabled: false"
+    position="0 2 0"
+  ></a-camera>
+
+  <a-light
+    type="directional"
+    target="#hand"
+    position="0 1.8 3"
+    intensity="0.5"
+  ></a-light>
+  <a-light type="ambient" intensity="0.5"></a-light>
+  <a-entity
+    light="type: directional;
+         intensity: 1;
+         castShadow: true;
+         shadowMapHeight:1024;
+         shadowMapWidth:1024;
+         shadowCameraTop: 10;
+         target: #dog;"
+    position="1 2 3"
+    xrextras-attach="target: dog; offset: 0.5 8 -1;"
+    shadow
+  >
+  </a-entity>
+
+  <!--  if using the animation-mixer component, make sure to load the external library in head.html -->
+  <a-entity
+    id="dog"
+    gltf-model="#hachi-model"
+    visible="true"
+    scale="0.2 0.2 0.2"
+    position="-0.5 1.7 -0.8"
+    rotation="0 90 0"
+    animation-mixer="clip: Walk_Anim2"
+    shadow
+    dog-control
+  >
+  </a-entity>
+  <a-plane
+    id="ground"
+    position="-0.5 1.7 -0.8"
+    rotation="-70 0 0"
+    width="4"
+    height="4"
+    material="shader: shadow; transparent: true; opacity: 0.5"
+    shadow
+  ></a-plane>
+
+  <xrextras-capture-button></xrextras-capture-button>
+  <xrextras-capture-preview></xrextras-capture-preview>
+
+  <xrextras-capture-config
+    max-duration-ms="15000"
+    max-dimension="1280"
+    enable-end-card="false"
+    file-name-prefix="my-capture-"
+  ></xrextras-capture-config>
+
+  <div id="top-section">
+    <img
+      id="back-btn"
+      src="/assets/map-assets/back_btn.png"
+      class="dontselect"
+      style="display: none"
+    />
+  </div>
+
+  <div id="top-section-photo">
+    <img
+      id="photo-icon"
+      src="/assets/map-assets/photo_inst.png"
+      class="dontselect"
+      style="display: none"
+    />
+    <img
+      id="photo-text"
+      src="/assets/map-assets/photo_inst2.png"
+      class="dontselect"
+      style="display: none"
+    />
+  </div>
+
+  <img
+    id="video_inst"
+    src="/assets/map-assets/video_inst.png"
+    class="dontselect"
+    style="display: none"
+  />
+
+  <div id="instructionLayer" class="instruction-layer" style="display: none">
+    <div id="inst-img" class="centered">
+      <img
+        src="/assets/map-assets/inst_img2.png"
+        alt="Instruction Image"
+        class="dontselect"
+      />
+      <img
+        id="inst-btn"
+        src="/assets/map-assets/inst_btn.png"
+        alt="Second Instruction Image"
+        class="dontselect"
+      />
+    </div>
+  </div>
+
+  <!-- Result UI -->
+  <div id="shareButton" style="display: none">
+    <img src="/assets/map-assets/share_btn.png" class="dontselect" />
+  </div>
+  <div id="placeButton" style="display: none">
+    <img src="/assets/map-assets/place_btn.png" class="dontselect" />
+  </div>
+  <div id="instruction" style="display: none">
+    'Press the image to save it, or<br />tap the share button to save the
+    video.'
+  </div>
+  <img
+    id="retryBtn"
+    src="/assets/map-assets/retry_btn.png"
+    alt="Retry Button"
+    style="display: none"
+    class="dontselect"
+  />
+  <img
+    id="endBtn"
+    src="/assets/map-assets/end_btn.png"
+    alt="Retry Button"
+    style="display: none"
+    class="dontselect"
+  />
+  <!-- Badges -->
+  <img
+    id="shibuyaBadge"
+    class="badge"
+    src="/assets/map-assets/animBadge/shibuyaBadgeAnim.png"
+    alt="Shibuya Badge"
+    style="display: none"
+  />
+  <img
+    id="ryogokuBadge"
+    class="badge"
+    src="/assets/map-assets/animBadge/ryogokuBadgeAnim.png"
+    alt="Ryogoku Badge"
+    style="display: none"
+  />
+  <img
+    id="asakusaBadge"
+    class="badge"
+    src="/assets/map-assets/animBadge/asakusaBadgeAnim.png"
+    alt="Asakusa Badge"
+    style="display: none"
+  />
+  <img
+    id="hamarikyuBadge"
+    class="badge"
+    src="/assets/map-assets/animBadge/bushoBadgeAnim.png"
+    alt="Hamarikyu Badge"
+    style="display: none"
+  />
+
+  <!-- Detail Page -->
+  <div id="whats-this" class="layer">
+    <div class="bg">
+      <h2>The Hachiko Statue</h2>
+      <div class="image_container">
+        <img class="stamp" src="/assets/map-assets/stamp_hachiko.png" />
+        <!-- img/stamp_hachiko.png -->
+      </div>
+      <p class="description">
+        Discover the heart of Tokyo, Shibuya, with the Hachiko statue that
+        beloved symbol of loyalty.
+        <br />
+        <br />
+        This famous Akita dog’s statue, popular for meet-ups and photo
+        backdrops, captures the spirit of Shibuya. Nearby Hachiko, you can see
+        Shibuya Scramble Crossing, which is known as the most famous
+        intersection in Japan.
+        <br />
+        <br />
+        Enjoy looking around west Tokyo include Shibuya, where always on the
+        cutting edge of trend!
+      </p>
+      <button id="btn-learn-more" type="button" class="learn">
+        <img src="/assets/map-assets/icon_link.svg" class="icon" />
+        <!-- img/icon_link.svg -->
+        Learn more
+      </button>
+      <button id="btn-close" type="button" class="close">Close</button>
+    </div>
+  </div>
+</a-scene>
+
+<script>
+  /* ピッチインピッチアウトによる拡大縮小を禁止 */
+  function preventZoom(e) {
+    if (e.touches.length >= 2) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
+  document.documentElement.addEventListener("touchstart", preventZoom, {
+    passive: false,
+  });
+  /* ダブルタップによる拡大を禁止 */
+  var t = 0;
+  document.documentElement.addEventListener(
+    "touchend",
+    function (e) {
+      var now = new Date().getTime();
+      if (now - t < 350) {
+        e.preventDefault();
+      }
+      t = now;
+    },
+    false
+  );
+</script>

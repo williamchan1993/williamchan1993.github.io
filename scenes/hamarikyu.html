@@ -1,0 +1,275 @@
+<!--
+DETECT MESH SCENE
+Basic scene that uses the detect-mesh component to download and position a
+VPS mesh over any detected VPS Activated Wayspot.
+It includes an opacity slider for the mesh and wireframe toggle.
+
+removed in a-scene: vps-coaching-overlay
+-->
+
+<a-scene
+  landing-page
+  detect-mesh-hamarikyu
+  gltf-model="dracoDecoderPath: https://cdn.8thwall.com/web/aframe/draco-decoder/"
+  xrextras-runtime-error
+  xrextras-loading="
+    loadBackgroundColor: #00A8EA;
+    loadImage: #loading;"
+  xrweb="enableVps: true"
+  renderer="colorManagement: true"
+>
+  <a-assets>
+    <a-asset-item
+      id="busho-model"
+      src="/assets/map-assets/models/busho1.glb"
+    ></a-asset-item>
+    <img id="loading" src="/assets/map-assets/loading.png" />
+  </a-assets>
+
+  <a-entity id="container" visible="false" position="0 0 0" rotation="0 0 0">
+    <!-- Your 3D contents go inside this container -->
+    <a-entity id="field" position="0 0 0" rotation="0 10 0">
+      <!-- +y:rotate anticlockwise(screen right)  -y: rotate clockwise(screen left)  -->
+      <a-box
+        id="center"
+        position="0 0 0"
+        visible="false"
+        scale="0.2 0.2 0.2"
+        color="red"
+      ></a-box>
+      <!-- center  -->
+      <a-box
+        id="right"
+        position="1 0 0"
+        visible="false"
+        scale="0.1 0.1 0.1"
+        color="blue"
+      ></a-box>
+      <!-- -x:left  +x: right  -->
+      <a-box
+        id="front"
+        position="0 0 1"
+        visible="false"
+        scale="0.1 0.1 0.1"
+        color="green"
+      ></a-box>
+      <!-- +z: front  -z:back -->
+      <!-- Spots for busho to pass -->
+      <a-box
+        id="pointA"
+        position="18 0 -2"
+        visible="false"
+        scale="1 1 1"
+        color="white"
+      ></a-box>
+      <a-box
+        id="pointB"
+        position="-16 0 8"
+        visible="false"
+        scale="1 1 1"
+        color="white"
+      ></a-box>
+      <a-box
+        id="pointC"
+        position="-20 0 -12"
+        visible="false"
+        scale="1 1 1"
+        color="white"
+      ></a-box>
+      <a-box
+        id="pointD"
+        position="-3 0 -0.5"
+        visible="false"
+        scale="1 1 1"
+        color="grey"
+      ></a-box>
+      <a-box
+        id="pointE"
+        position="-3 0 0"
+        visible="false"
+        scale="1 1 1"
+        color="white"
+      ></a-box>
+      <a-light
+        id="dirlight"
+        type="directional"
+        color="#d1e0ed"
+        intensity="0.7"
+        position="10 10 20"
+      ></a-light>
+
+      <a-entity id="busho" position="16 0 -8">
+        <a-entity
+          id="busho-anim"
+          gltf-model="#busho-model"
+          position="0 0 0"
+          scale="0.65 0.65 0.65"
+          visible="true"
+          animation-mixer="clip: Run.001"
+        >
+        </a-entity>
+      </a-entity>
+    </a-entity>
+  </a-entity>
+
+  <xrextras-capture-button></xrextras-capture-button>
+  <xrextras-capture-preview></xrextras-capture-preview>
+
+  <xrextras-capture-config
+    max-duration-ms="15000"
+    max-dimension="1280"
+    enable-end-card="false"
+    file-name-prefix="my-capture-"
+  ></xrextras-capture-config>
+
+  <a-camera id="camera" position="0 1.8 4" fov="100" near="0.01" far="10000">
+  </a-camera>
+
+  <a-light type="ambient" color="#d5ecf0" intensity="0.6"></a-light>
+  <div id="top-section">
+    <img
+      id="back-btn"
+      src="/assets/map-assets/back_btn.png"
+      class="dontselect"
+      style="display: none"
+    />
+  </div>
+
+  <div id="top-section-photo">
+    <img
+      id="photo-icon"
+      src="/assets/map-assets/photo_inst.png"
+      class="dontselect"
+      style="display: none"
+    />
+    <img
+      id="photo-text"
+      src="/assets/map-assets/photo_inst2.png"
+      class="dontselect"
+      style="display: none"
+    />
+  </div>
+
+  <img
+    id="video_inst"
+    src="/assets/map-assets/video_inst.png"
+    class="dontselect"
+  />
+
+  <div id="vps-inst" class="vps-inst" style="display: none">
+    <img
+      id="vps-inst-img"
+      src="/assets/map-assets/hamarikyu_Inst.png"
+      alt="Instruction Image"
+      class="dontselect"
+    />
+    <div class="content-column">
+      <p id="vps-inst-text">Scanning...</p>
+    </div>
+  </div>
+
+  <!-- Result UI -->
+  <div id="shareButton" style="display: none">
+    <img src="/assets/map-assets/share_btn.png" class="dontselect" />
+  </div>
+  <div id="placeButton" style="display: none">
+    <img src="/assets/map-assets/place_btn.png" class="dontselect" />
+  </div>
+  <div id="instruction" style="display: none">
+    'Press the image to save it, or<br />tap the share button to save the
+    video.'
+  </div>
+  <img
+    id="retryBtn"
+    src="/assets/map-assets/retry_btn.png"
+    alt="Retry Button"
+    style="display: none"
+    class="dontselect"
+  />
+  <img
+    id="endBtn"
+    src="/assets/map-assets/end_btn.png"
+    alt="Retry Button"
+    style="display: none"
+    class="dontselect"
+  />
+  <!-- Badges -->
+  <img
+    id="shibuyaBadge"
+    class="badge"
+    src="/assets/map-assets/animBadge/shibuyaBadgeAnim.png"
+    alt="Shibuya Badge"
+    style="display: none"
+  />
+  <img
+    id="ryogokuBadge"
+    class="badge"
+    src="/assets/map-assets/animBadge/ryogokuBadgeAnim.png"
+    alt="Ryogoku Badge"
+    style="display: none"
+  />
+  <img
+    id="asakusaBadge"
+    class="badge"
+    src="/assets/map-assets/animBadge/asakusaBadgeAnim.png"
+    alt="Asakusa Badge"
+    style="display: none"
+  />
+  <img
+    id="hamarikyuBadge"
+    class="badge"
+    src="/assets/map-assets/animBadge/bushoBadgeAnim.png"
+    alt="Hamarikyu Badge"
+    style="display: none"
+  />
+
+  <!-- Detail Page -->
+  <div id="whats-this" class="layer">
+    <div class="bg">
+      <h2>Hama-rikyu Gardens</h2>
+      <div class="image_container">
+        <img class="stamp" src="/assets/map-assets/stamp_hakubutsukan.png" />
+      </div>
+      <p class="description">
+        Near the lively market streets, find serenity in sprawling parks and an
+        unusual temple.
+        <br />
+        <br />
+        Hama-rikyu Gardens is perfect for quiet strolling, rich with wildlife,
+        seasonal flowers, tidal ponds and an elegant tea house. You can also
+        take a water bus to Asakusa from the landing.
+      </p>
+      <button id="btn-learn-more" type="button" class="learn">
+        <img src="/assets/map-assets/icon_link.svg" class="icon" />
+        Learn more
+      </button>
+      <button id="btn-close" type="button" class="close">Close</button>
+    </div>
+  </div>
+</a-scene>
+
+<script>
+  /* ピッチインピッチアウトによる拡大縮小を禁止 */
+  function preventZoom(e) {
+    if (e.touches.length >= 2) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
+  document.documentElement.addEventListener("touchstart", preventZoom, {
+    passive: false,
+  });
+  /* ダブルタップによる拡大を禁止 */
+  var t = 0;
+  document.documentElement.addEventListener(
+    "touchend",
+    function (e) {
+      var now = new Date().getTime();
+      if (now - t < 350) {
+        e.preventDefault();
+      }
+      t = now;
+    },
+    false
+  );
+</script>
