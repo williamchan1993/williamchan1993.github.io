@@ -401,7 +401,6 @@ function createResultUI() {
     shareButton.addEventListener("click", () => {
       // Trigger the click event on button1
       console.log("click share");
-      window.share();
       existingButton.click();
     });
     shareButton.addEventListener("contextmenu", function (event) {
@@ -415,7 +414,6 @@ function createResultUI() {
     placeButton.addEventListener("click", () => {
       // Trigger the click event on button1
       console.log("click share");
-      window.showStampDetail();
       const detailLayer = document.querySelector(".layer");
       detailLayer.style.display = "flex";
       // existingButton.click();
@@ -426,7 +424,6 @@ function createResultUI() {
 
     const btnlearnmore = document.getElementById("btn-learn-more");
     btnlearnmore.addEventListener("click", () => {
-      window.showLearnMore("https://www.gotokyo.org/en/destinations/western-tokyo/shibuya/index.html");
       window.open(
         "https://www.gotokyo.org/en/destinations/western-tokyo/shibuya/index.html",
         "_blank"
@@ -462,8 +459,6 @@ function createResultUI() {
       var event = new Event("click");
       const close = document.getElementById("closePreviewButton");
       close.dispatchEvent(event);
-
-      window.closeCheckin();
     });
 
     topBar.appendChild(retryBtn);
@@ -509,7 +504,6 @@ function createResultUI() {
     endBtn.addEventListener("click", () => {
       // window.location.href = url;
       uiInited = false; // Reset uiInit in case
-      window.closeAR();
     });
     endBtn.style.display = "block";
     topBar.appendChild(endBtn);
@@ -542,8 +536,8 @@ window.addEventListener("mediarecorder-photocomplete", (e) => {
       event.off();
     });
 
-  window.recordPhoto();
-  window.openCheckin();
+  // window.recordPhoto();
+  // window.openCheckin();
 });
 
 window.addEventListener("mediarecorder-recordcomplete", (e) => {
@@ -557,8 +551,8 @@ window.addEventListener("mediarecorder-recordcomplete", (e) => {
       event.off();
     });
 
-  window.recordMovie();
-  window.openCheckin();
+  // window.recordMovie();
+  // window.openCheckin();
 });
 
 export { dogControlComponent };

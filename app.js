@@ -3,8 +3,6 @@
 // app.js is the main entry point for your 8th Wall app. Code here will execute after head.html
 // is loaded, and before body.html is loaded.
 
-// import "./main.css";
-
 // Each location scene related scripts
 import { detectMeshRyogokuComponent } from "./components/detect-mesh-ryogoku.js";
 AFRAME.registerComponent("detect-mesh-ryogoku", detectMeshRyogokuComponent);
@@ -45,17 +43,3 @@ async function loadExternalContent(s) {
   }
 }
 loadExternalContent(s);
-
-// Load scene manually
-// document.body.insertAdjacentHTML('beforeend', require('./scenes/detect-mesh.html'))
-
-const swapBody = (newHtml) => {
-  const scene = document.body.querySelector("a-scene");
-  scene.parentElement.removeChild(scene);
-  document.body.insertAdjacentHTML("beforeend", newHtml);
-};
-
-window.addEventListener("startar", ({ detail }) => {
-  swapBody(require("./scenes/asakusa.html"));
-  window._startAR = detail;
-});

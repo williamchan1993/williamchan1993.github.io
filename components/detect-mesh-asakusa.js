@@ -272,7 +272,7 @@ const detectMeshAsakusaComponent = {
           shareButton.addEventListener("click", () => {
             // Trigger the click event on button1
             console.log("click share");
-            window.share();
+            // window.share();
             existingButton.click();
           });
           shareButton.addEventListener("contextmenu", function (event) {
@@ -286,7 +286,7 @@ const detectMeshAsakusaComponent = {
           placeButton.addEventListener("click", () => {
             // Trigger the click event on button1
             console.log("click share");
-            window.showStampDetail();
+            // window.showStampDetail();
             const detailLayer = document.querySelector(".layer");
             detailLayer.style.display = "flex";
             // existingButton.click();
@@ -297,7 +297,7 @@ const detectMeshAsakusaComponent = {
 
           const btnlearnmore = document.getElementById("btn-learn-more");
           btnlearnmore.addEventListener("click", () => {
-            window.showLearnMore("https://www.gotokyo.org/en/destinations/eastern-tokyo/asakusa/index.html");
+            // window.showLearnMore("https://www.gotokyo.org/en/destinations/eastern-tokyo/asakusa/index.html");
             window.open(
               "https://www.gotokyo.org/en/destinations/eastern-tokyo/asakusa/index.html",
               "_blank"
@@ -334,7 +334,7 @@ const detectMeshAsakusaComponent = {
             const close = document.getElementById("closePreviewButton");
             close.dispatchEvent(event);
 
-            window.closeCheckin();
+            // window.closeCheckin();
           });
 
           topBar.appendChild(retryBtn);
@@ -352,7 +352,7 @@ const detectMeshAsakusaComponent = {
           endBtn.addEventListener("click", () => {
             // window.location.href = url;
             uiInited = false; // Reset uiInit in case
-            window.closeAR();
+            // window.closeAR();
           });
           endBtn.style.display = "block";
           topBar.appendChild(endBtn);

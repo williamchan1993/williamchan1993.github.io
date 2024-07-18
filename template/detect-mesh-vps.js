@@ -1,48 +1,16 @@
 let uiInited = false;
 let targetBadge = "";
 
-// Wireframe Texture for debug
-const discoWireframeMaterial = new THREE.ShaderMaterial({
-  uniforms: {
-    timeMsec: { value: 1.0 },
-  },
-  vertexShader: `
-  varying vec2 vUv;
-
-  void main() {
-    vUv = uv;
-    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-    gl_Position = projectionMatrix * mvPosition;
-  }
-  `,
-  fragmentShader: `
-  uniform float timeMsec;
-  varying vec2 vUv;
-
-  void main(void) {
-    vec2 position = - 1.0 + 2.0 * vUv;
-
-    float red = abs(sin(position.x * position.y + timeMsec / 5.0));
-    float green = abs(sin(position.x * position.y + timeMsec / 4.0));
-    float blue = abs(sin(position.x * position.y + timeMsec / 3.0));
-    gl_FragColor = vec4(red, green, blue, 0.5);
-  }
-  `,
-  transparent: true,
-  wireframe: true,
-});
-
-const detectMeshHamarikyuComponent = {
+const detectMeshVpsComponent = {
   init() {
-    console.log("Init Hamarikyu");
     const scene = this.el.sceneEl;
     scene.emit("recenter");
     const mapBtn = document.getElementById("map-btn");
     this.container = document.getElementById("container");
     this.field = document.getElementById("field");
-    this.busho = document.getElementById("busho");
-    const bushoAnim = document.getElementById("busho-anim");
-    const busho = document.getElementById("busho");
+    this.model = document.getElementById("model"); 
+    const modelAnim = document.getElementById("anim");
+    const model = document.getElementById("model");
     const pointA = document.getElementById("pointA");
     const pointB = document.getElementById("pointB");
     const pointC = document.getElementById("pointC");
@@ -67,12 +35,10 @@ const detectMeshHamarikyuComponent = {
     // Init Elements
     const loadImage = document.getElementById("requestingCameraPermissions");
     if (loadImage) {
-      // console.log('Found loading cover')
       loadImage.style.display = "none";
     }
     const loadBackground = document.getElementById("loadBackground");
     if (loadBackground) {
-      // console.log('Found loading background')
       loadImage.style.display = "none";
       const topImage = document.createElement("img");
       topImage.src = "/assets/map-assets/cover.png"; // Replace with the actual source
@@ -91,12 +57,9 @@ const detectMeshHamarikyuComponent = {
       window.history.back(); // should change back to 2D Map URL in final
     };
 
-    // Moves Busho from one Point to another Point within specific duration
-    function moveBusho(startPoint, endPoint, duration) {
-      // console.log("start moving busho")
-      // Set the initial position of busho to the start point
-      busho.setAttribute("position", startPoint);
-
+    // Moves Model from one Point to another Point within specific duration
+    function moveModel(startPoint, endPoint, duration) {
+      model.setAttribute("position", startPoint);
       // Calculate the rotation to point towards the end point
       let direction = new THREE.Vector3();
       direction
@@ -107,10 +70,10 @@ const detectMeshHamarikyuComponent = {
         .normalize();
       let rotationY = Math.atan2(direction.x, direction.z);
       let rotationDeg = THREE.MathUtils.radToDeg(rotationY); // Corrected to Math object
-      busho.setAttribute("rotation", "0 " + rotationDeg + " 0");
+      model.setAttribute("rotation", "0 " + rotationDeg + " 0");
 
       // Update the 'animation' attribute to animate busho to move towards the end point
-      busho.setAttribute("animation", {
+      model.setAttribute("animation", {
         property: "position",
         to: endPoint.toArray().join(" "),
         dur: duration,
@@ -118,7 +81,7 @@ const detectMeshHamarikyuComponent = {
 
       // Remove the 'animation' attribute after the animation is complete
       setTimeout(function () {
-        busho.removeAttribute("animation"); // __position
+        model.removeAttribute("animation"); // __position
       }, duration);
     }
 
@@ -135,25 +98,21 @@ const detectMeshHamarikyuComponent = {
 
       // Function to play the next animation in the sequence
       function playNextAnimation(index) {
-        //console.log("index: " + index)
         if (index === 5) index = 2;
         if (index < animationSequence.length) {
           var animationName = animationSequence[index];
-          //console.log("Play anim: " + animationName)
-
           // Set the animation to play
-          bushoAnim.setAttribute("animation-mixer", {
+          modelAnim.setAttribute("animation-mixer", {
             clip: `${animationName}`,
             loop: "once",
           });
 
           // Listen for the animation-finished event
-          bushoAnim.addEventListener(
+          modelAnim.addEventListener(
             "animation-finished",
             function onAnimationFinished() {
               // Remove the event listener to avoid multiple triggers
-              // console.log("Animation finish")
-              bushoAnim.removeEventListener(
+              modelAnim.removeEventListener(
                 "animation-finished",
                 onAnimationFinished
               );
@@ -181,10 +140,9 @@ const detectMeshHamarikyuComponent = {
       return pointZ;
     }
 
-    //console.log('Try find Mesh: ' + window._startAR.title)
+
     const params = new URLSearchParams(document.location.search.substring(1));
     const waypoint = params.get("scene") ? params.get("scene") : null; // world-map
-    // console.log("Found waypoint from url: " + waypoint)
 
     const startScanning = ({ detail }) => {
       console.log("start Scanning");
@@ -195,7 +153,6 @@ const detectMeshHamarikyuComponent = {
     };
 
     const foundMesh = ({ detail }) => {
-      // console.log("found Mesh")
       if (meshFound === true) {
         return;
       }
@@ -204,46 +161,16 @@ const detectMeshHamarikyuComponent = {
       // Wayspot specific contents
       let wayspotTitle = "";
       let name = "";
-      let hint = "";
 
       switch (waypoint) {
         case "hamarikyu":
           wayspotTitle = "c6d06f5b9d414b2ea3208037a0c3d9fd.107";
           name = "Hama-rikyu Gardens";
-          hint = "../assets/kusunoki_cover-lthelo657c.png";
-          // console.log(waypoint + " " + name + " " + wayspotTitle);
           break;
         default:
-          // console.log('No matching wayspot with same title');
+          console.log('No matching wayspot with same title');
           wayspotTitle = "c6d06f5b9d414b2ea3208037a0c3d9fd.107";
           name = "Hama-rikyu Gardens";
-          hint = "../assets/kusunoki_cover-lthelo657c.png";
-        // console.log(waypoint + " " + name + " " + wayspotTitle);
-      }
-
-      // Storage related (May need to change to DB)
-      function getAllSavedWaypointFromLocalStorage() {
-        // Retrieve the list of from local storage
-        const stringList = JSON.parse(localStorage.getItem("badge")) || [];
-        return stringList;
-      }
-
-      function saveBadgeToLocalStorage(newBadge) {
-        // Retrieve existing list from local storage
-        let badgeList = JSON.parse(localStorage.getItem("badge")) || [];
-
-        // Check if the new string exists in the list
-        if (!badgeList.includes(newBadge)) {
-          // If it doesn't exist, push the new string to the list
-          badgeList.push(newBadge);
-
-          // Save the updated list back to local storage
-          localStorage.setItem("badge", JSON.stringify(badgeList));
-
-          console.log(`Badge '${newBadge}' newly got.`);
-        } else {
-          console.log(`Badge '${newBadge}' already got before.`);
-        }
       }
 
       // Result UI related
@@ -269,7 +196,7 @@ const detectMeshHamarikyuComponent = {
           shareButton.addEventListener("click", () => {
             // Trigger the click event on button1
             console.log("click share");
-            // window.share();
+            window.share();
             existingButton.click();
           });
           shareButton.addEventListener("contextmenu", function (event) {
@@ -283,7 +210,7 @@ const detectMeshHamarikyuComponent = {
           placeButton.addEventListener("click", () => {
             // Trigger the click event on button1
             console.log("click share");
-            // window.showStampDetail();
+            window.showStampDetail();
             const detailLayer = document.querySelector(".layer");
             detailLayer.style.display = "flex";
             // existingButton.click();
@@ -294,7 +221,7 @@ const detectMeshHamarikyuComponent = {
 
           const btnlearnmore = document.getElementById("btn-learn-more");
           btnlearnmore.addEventListener("click", () => {
-            // window.showLearnMore("https://www.gotokyo.org/en/destinations/central-tokyo/tsukiji/index.html");
+            window.showLearnMore("https://www.gotokyo.org/en/destinations/central-tokyo/tsukiji/index.html");
             window.open(
               "https://www.gotokyo.org/en/destinations/central-tokyo/tsukiji/index.html",
               "_blank"
@@ -331,7 +258,7 @@ const detectMeshHamarikyuComponent = {
             const close = document.getElementById("closePreviewButton");
             close.dispatchEvent(event);
 
-            // window.closeCheckin();
+            window.closeCheckin();
           });
 
           topBar.appendChild(retryBtn);
@@ -348,7 +275,7 @@ const detectMeshHamarikyuComponent = {
           endBtn.addEventListener("click", () => {
             // window.location.href = url;
             uiInited = false; // Reset uiInit in case
-            // window.closeAR();
+            window.closeAR();
           });
           endBtn.style.display = "block";
           topBar.appendChild(endBtn);
@@ -420,31 +347,6 @@ const detectMeshHamarikyuComponent = {
         }, 1500);
       };
 
-      // // //// Script for showing Wireframe Mesh ////
-      // const texture = null;
-      // this.threeMaterial = new THREE.MeshBasicMaterial({
-      //   vertexColors: !texture,
-      //   wireframe: false,
-      //   visible: true,
-      //   transparent: true,
-      //   map: texture,
-      // });
-
-      // mesh = new THREE.Mesh(bufferGeometry, this.threeMaterial); // construct VPS mesh
-
-      // // add mesh to A-Frame scene
-      // this.meshEl = document.createElement('a-entity')
-      // this.meshEl.id = 'vps-mesh'
-      // mesh.material = discoWireframeMaterial
-      // this.meshEl.object3D.add(mesh)
-      // this.meshEl.object3D.position.copy(position)
-      // this.meshEl.object3D.quaternion.copy(rotation)
-      // this.meshEl.visible = true  // hide by default
-      // this.meshEl.object3D.children[0].material.opacity = 0.4
-      // scene.prepend(this.meshEl)
-      // document.getElementById('vps-mesh').object3D.visible = true
-      // //// Script for showing Wireframe Mesh ////
-
       switch (wayspotTitle) {
         case "c6d06f5b9d414b2ea3208037a0c3d9fd.107":
           // console.log('Mesh detected: 浜離宮');
@@ -458,20 +360,13 @@ const detectMeshHamarikyuComponent = {
           this.field.object3D.position.x += 2;
           this.field.object3D.position.y -= 3;
           this.field.object3D.position.z -= 7;
-          //// Real ////
 
-          //// Debug ////
-          // this.container.object3D.position.x += 1
-          // this.container.object3D.position.y -= 3
-          // this.container.object3D.position.z -= 15
-          //// Real ////
-
-          moveBusho(pointA.object3D.position, pointB.object3D.position, 3000);
+          moveModel(pointA.object3D.position, pointB.object3D.position, 3000);
           // console.log("from A to B")
 
           setTimeout(function () {
             // console.log("from C to E")
-            moveBusho(pointC.object3D.position, pointE.object3D.position, 2000);
+            moveModel(pointC.object3D.position, pointE.object3D.position, 2000);
           }, 3100);
 
           setTimeout(function () {
@@ -493,4 +388,4 @@ const detectMeshHamarikyuComponent = {
   },
 };
 
-export { detectMeshHamarikyuComponent };
+export { detectMeshVpsComponent };

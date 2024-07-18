@@ -141,12 +141,6 @@ const detectMeshRyogokuComponent = {
       window.history.back(); // should change back to 2D Map URL in final
     };
 
-    if (window._startAR) {
-      console.log(window._startAR.title);
-    } else {
-      console.log("no title");
-    }
-
     //console.log('Try find Mesh: ' + window._startAR.title)
     const params = new URLSearchParams(document.location.search.substring(1));
     const waypoint = params.get("scene") ? params.get("scene") : null; // world-map
@@ -349,7 +343,7 @@ const detectMeshRyogokuComponent = {
           shareButton.addEventListener("click", () => {
             // Trigger the click event on button1
             console.log("click share");
-            window.share();
+            // window.share();
             existingButton.click();
           });
           shareButton.addEventListener("contextmenu", function (event) {
@@ -363,7 +357,7 @@ const detectMeshRyogokuComponent = {
           placeButton.addEventListener("click", () => {
             // Trigger the click event on button1
             console.log("click share");
-            window.showStampDetail();
+            // window.showStampDetail();
             const detailLayer = document.querySelector(".layer");
             detailLayer.style.display = "flex";
             // existingButton.click();
@@ -374,7 +368,7 @@ const detectMeshRyogokuComponent = {
 
           const btnlearnmore = document.getElementById("btn-learn-more");
           btnlearnmore.addEventListener("click", () => {
-            window.showLearnMore("https://www.gotokyo.org/en/destinations/eastern-tokyo/ryogoku/index.html");
+            // window.showLearnMore("https://www.gotokyo.org/en/destinations/eastern-tokyo/ryogoku/index.html");
             window.open(
               "https://www.gotokyo.org/en/destinations/eastern-tokyo/ryogoku/index.html",
               "_blank"
@@ -411,7 +405,7 @@ const detectMeshRyogokuComponent = {
             const close = document.getElementById("closePreviewButton");
             close.dispatchEvent(event);
 
-            window.closeCheckin();
+            // window.closeCheckin();
           });
 
           topBar.appendChild(retryBtn);
@@ -459,7 +453,7 @@ const detectMeshRyogokuComponent = {
           endBtn.addEventListener("click", () => {
             // window.location.href = url;
             uiInited = false; // Reset uiInit in case
-            window.closeAR();
+            // window.closeAR();
           });
           endBtn.style.display = "block";
           topBar.appendChild(endBtn);
