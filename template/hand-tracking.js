@@ -4,7 +4,8 @@ let uiInited = false;
 
 const dogControlComponent = {
   init() {
-    // console.log("Init Shibuya")
+    // ローディング画面関連
+    // Loading UI related
     uiInited = false; // Reset uiInit in case
     const loadImage = document.getElementById("requestingCameraPermissions");
     if (loadImage) {
@@ -31,7 +32,8 @@ const dogControlComponent = {
     });
     const okBtn = document.getElementById("inst-btn");
 
-    // Listing elements
+    // モデルアニメーション関連
+    // Model Animation Related
     this.dog = document.getElementById("dog");
     this.shadow = document.getElementById("ground");
     this.prevPosition = this.dog.object3D.position;
@@ -50,6 +52,8 @@ const dogControlComponent = {
     this.needSitFlag = false;
     this.doneFirstMove = false;
 
+    // モデルアニメーション変更
+    // Change Model Animation
     function changeAnimation(num) {
       document.getElementById("dog").setAttribute("animation-mixer", {
         clip: animationList[num],
@@ -57,6 +61,8 @@ const dogControlComponent = {
       });
     }
 
+    // モデルアニメーションプレイ
+    // Play Model Animation Once
     function playAnimationOnce(num) {
       document.getElementById("dog").setAttribute("animation-mixer", {
         clip: animationList[num],
@@ -75,6 +81,96 @@ const dogControlComponent = {
       doneInit = true;
     }
 
+    ////////////////////////////////
+    // ハンドトラッキングイベント  //
+    // Hand Tracking Related  ////
+    /////////////////////////////
+
+    // 手の認識した時の処理
+    // Handling Hand Detection
+    const foundHand = (detail) => {
+        if (doneInit === true) {
+            this.needSitFlag = false;
+            console.log("need sit Flag to false");
+            this.dog.removeAttribute("animation");
+            this.dog.removeAttribute("animation__2");
+            this.shadow.removeAttribute("animation");
+            if (this.doneFirstMove === false) {
+            playAnimationOnce(8);
+            this.animationState = 8;
+            }
+            endLostHandevent();
+        }
+    };
+
+    // 手がロストした時の処理
+    // Handling Hand Lost
+    const lostHand = () => {
+        if (doneInit === true) {
+          if (this.animationState === 6) {
+            // Walking
+            console.log("played once DefaultToOswr by Distance from lostHand");
+            playAnimationOnce(1);
+            this.animationState = 1;
+          } else if (this.animationState === 4) {
+            // OswrtoDefault
+            console.log("need sit Flag to true");
+            this.needSitFlag = true;
+          }
+          this.shadow.setAttribute("material", {
+            shader: "shadow",
+            transparent: true,
+            opacity: 0,
+          });
+          startLostHandevent();
+        }
+      };
+
+    // アニメーション終了をイベント化
+    // Changing Animation into events
+    const animEnded = () => {
+        if (this.animationState === 8) {
+            // Jump
+            console.log(
+            "change to 3 by End anim from " + animationList[this.animationState]
+            );
+            changeAnimation(3);
+            this.animationState = 3;
+            this.doneFirstMove = true;
+            moveSpd = 0.1;
+        } else if (this.animationState === 1) {
+            // Default to Oswr
+            console.log(
+            "change to 3 by End anim from " + animationList[this.animationState]
+            );
+            changeAnimation(3);
+            this.animationState = 3;
+        } else if (this.animationState === 4) {
+            // Oswr to Default
+            if (this.needSitFlag) {
+            console.log(
+                "change to DefaulttoOswr by End anim from " +
+                animationList[this.animationState] +
+                " need sit"
+            );
+            playAnimationOnce(1);
+            this.animationState = 1;
+            this.needSitFlag = false;
+            moveSpd = 0.1;
+            } else {
+            console.log(
+                "change to Walk by End anim from " +
+                animationList[this.animationState] +
+                " no need sit"
+            );
+            changeAnimation(6);
+            this.animationState = 6;
+            }
+        }
+    };
+
+    // 手認識しているの処理
+    // Handle Hand Tracking
     const keepHand = ({ detail }) => {
       if (doneInit === true) {
         const xMod = detail.handKind === 1 ? -0.03 : 0.03;
@@ -179,83 +275,6 @@ const dogControlComponent = {
       clearTimeout(timeoutId);
     }
 
-    const lostHand = () => {
-      if (doneInit === true) {
-        if (this.animationState === 6) {
-          // Walking
-          console.log("played once DefaultToOswr by Distance from lostHand");
-          playAnimationOnce(1);
-          this.animationState = 1;
-        } else if (this.animationState === 4) {
-          // OswrtoDefault
-          console.log("need sit Flag to true");
-          this.needSitFlag = true;
-        }
-        this.shadow.setAttribute("material", {
-          shader: "shadow",
-          transparent: true,
-          opacity: 0,
-        });
-        startLostHandevent();
-      }
-    };
-
-    const foundHand = (detail) => {
-      if (doneInit === true) {
-        this.needSitFlag = false;
-        console.log("need sit Flag to false");
-        this.dog.removeAttribute("animation");
-        this.dog.removeAttribute("animation__2");
-        this.shadow.removeAttribute("animation");
-        if (this.doneFirstMove === false) {
-          playAnimationOnce(8);
-          this.animationState = 8;
-        }
-        endLostHandevent();
-      }
-    };
-
-    const animEnded = () => {
-      if (this.animationState === 8) {
-        // Jump
-        console.log(
-          "change to 3 by End anim from " + animationList[this.animationState]
-        );
-        changeAnimation(3);
-        this.animationState = 3;
-        this.doneFirstMove = true;
-        moveSpd = 0.1;
-      } else if (this.animationState === 1) {
-        // Default to Oswr
-        console.log(
-          "change to 3 by End anim from " + animationList[this.animationState]
-        );
-        changeAnimation(3);
-        this.animationState = 3;
-      } else if (this.animationState === 4) {
-        // Oswr to Default
-        if (this.needSitFlag) {
-          console.log(
-            "change to DefaulttoOswr by End anim from " +
-              animationList[this.animationState] +
-              " need sit"
-          );
-          playAnimationOnce(1);
-          this.animationState = 1;
-          this.needSitFlag = false;
-          moveSpd = 0.1;
-        } else {
-          console.log(
-            "change to Walk by End anim from " +
-              animationList[this.animationState] +
-              " no need sit"
-          );
-          changeAnimation(6);
-          this.animationState = 6;
-        }
-      }
-    };
-
     function handloading() {
       console.log("loading start");
       // Enter screen
@@ -349,6 +368,8 @@ const dogControlComponent = {
   },
 };
 
+// 結果UI関連
+// Result UI related
 function createResultUI() {
   if (!uiInited) {
     uiInited = true;

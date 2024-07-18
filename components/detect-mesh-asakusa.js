@@ -5,44 +5,10 @@ let modelPosition = new THREE.Vector3();
 let distanceTF;
 let distanceFR;
 let distanceM;
-let worldPos = new THREE.Vector3();
 let goal = false;
 let uiInited = false;
-let targetBadge = "";
-
 let previousTime = performance.now();
 let deltaTime = 0;
-
-// Wireframe Texture for debug
-const discoWireframeMaterial = new THREE.ShaderMaterial({
-  uniforms: {
-    timeMsec: { value: 1.0 },
-  },
-  vertexShader: `
-  varying vec2 vUv;
-
-  void main() {
-    vUv = uv;
-    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-    gl_Position = projectionMatrix * mvPosition;
-  }
-  `,
-  fragmentShader: `
-  uniform float timeMsec;
-  varying vec2 vUv;
-
-  void main(void) {
-    vec2 position = - 1.0 + 2.0 * vUv;
-
-    float red = abs(sin(position.x * position.y + timeMsec / 5.0));
-    float green = abs(sin(position.x * position.y + timeMsec / 4.0));
-    float blue = abs(sin(position.x * position.y + timeMsec / 3.0));
-    gl_FragColor = vec4(red, green, blue, 0.5);
-  }
-  `,
-  transparent: true,
-  wireframe: true,
-});
 
 // Detects a VPS node, downloads its mesh and places it on top of the real world
 const detectMeshAsakusaComponent = {
@@ -94,15 +60,8 @@ const detectMeshAsakusaComponent = {
       window.history.back(); // should change back to 2D Map URL in final
     };
 
-    // if (window._startAR) {
-    //   console.log(window._startAR.title)
-    // } else {
-    //   console.log("no title")
-    // }
-
     const params = new URLSearchParams(document.location.search.substring(1));
     const waypoint = params.get("scene") ? params.get("scene") : null; // world-map
-    // console.log("Found waypoint from url: " + waypoint)
 
     const startScanning = ({ detail }) => {
       console.log("start Scanning");
@@ -113,39 +72,10 @@ const detectMeshAsakusaComponent = {
     };
 
     const foundMesh = ({ detail }) => {
-      // console.log("found Mesh")
       if (meshFound === true) {
         return;
       }
       const { bufferGeometry, position, rotation } = detail;
-
-      // //// Script for showing Wireframe Mesh ////
-
-      // const texture = null;
-      // this.threeMaterial = new THREE.MeshBasicMaterial({
-      //   vertexColors: !texture,
-      //   wireframe: false,
-      //   visible: true,
-      //   transparent: true,
-      //   map: texture,
-      // });
-
-      // construct VPS mesh
-      //mesh = new THREE.Mesh(bufferGeometry, this.threeMaterial);
-
-      // add mesh to A-Frame scene
-      // this.meshEl = document.createElement('a-entity')
-      // this.meshEl.id = 'vps-mesh'
-      // mesh.material = discoWireframeMaterial
-      // this.meshEl.object3D.add(mesh)
-      // this.meshEl.object3D.position.copy(position)
-      // this.meshEl.object3D.quaternion.copy(rotation)
-      // this.meshEl.visible = true  // hide by default
-      // this.meshEl.object3D.children[0].material.opacity = 0.4
-      // scene.prepend(this.meshEl)
-      // document.getElementById('vps-mesh').object3D.visible = true;
-
-      // //// Script for showing Wireframe Mesh ////
 
       // Raijin Animation and switch target position related functions
       const RaijinStage4loop_ToMid = () => {
@@ -214,39 +144,12 @@ const detectMeshAsakusaComponent = {
           wayspotTitle = "雷門";
           name = "Kaminarimon Gate";
           hint = "../assets/asakusa_cover-h6xbt50a39.png";
-          // console.log(waypoint + " " + name + " " + wayspotTitle);
           break;
         default:
           console.log("No matching wayspot with same title");
           wayspotTitle = "雷門";
           name = "Kaminarimon Gate";
           hint = "../assets/asakusa_cover-h6xbt50a39.png";
-        // console.log(waypoint + " " + name + " " + wayspotTitle);
-      }
-
-      // Storage related (May need to change to DB)
-      function getAllSavedWaypointFromLocalStorage() {
-        // Retrieve the list of from local storage
-        const stringList = JSON.parse(localStorage.getItem("badge")) || [];
-        return stringList;
-      }
-
-      function saveBadgeToLocalStorage(newBadge) {
-        // Retrieve existing list from local storage
-        let badgeList = JSON.parse(localStorage.getItem("badge")) || [];
-
-        // Check if the new string exists in the list
-        if (!badgeList.includes(newBadge)) {
-          // If it doesn't exist, push the new string to the list
-          badgeList.push(newBadge);
-
-          // Save the updated list back to local storage
-          localStorage.setItem("badge", JSON.stringify(badgeList));
-
-          console.log(`Badge '${newBadge}' newly got.`);
-        } else {
-          console.log(`Badge '${newBadge}' already got before.`);
-        }
       }
 
       // Result UI related
@@ -258,7 +161,6 @@ const detectMeshAsakusaComponent = {
             "display: block; height: 100%; width: auto;";
           document.getElementById("videoPreview").style =
             "display: block; height: 100%; width: auto;";
-
           const existingButton = document.getElementById("actionButton");
           // Show instruction text
           const instructionText = document.getElementById("instruction");
@@ -272,7 +174,6 @@ const detectMeshAsakusaComponent = {
           shareButton.addEventListener("click", () => {
             // Trigger the click event on button1
             console.log("click share");
-            // window.share();
             existingButton.click();
           });
           shareButton.addEventListener("contextmenu", function (event) {
@@ -286,10 +187,8 @@ const detectMeshAsakusaComponent = {
           placeButton.addEventListener("click", () => {
             // Trigger the click event on button1
             console.log("click share");
-            // window.showStampDetail();
             const detailLayer = document.querySelector(".layer");
             detailLayer.style.display = "flex";
-            // existingButton.click();
           });
           placeButton.addEventListener("contextmenu", function (event) {
             event.preventDefault();
@@ -297,7 +196,6 @@ const detectMeshAsakusaComponent = {
 
           const btnlearnmore = document.getElementById("btn-learn-more");
           btnlearnmore.addEventListener("click", () => {
-            // window.showLearnMore("https://www.gotokyo.org/en/destinations/eastern-tokyo/asakusa/index.html");
             window.open(
               "https://www.gotokyo.org/en/destinations/eastern-tokyo/asakusa/index.html",
               "_blank"
@@ -333,8 +231,6 @@ const detectMeshAsakusaComponent = {
             var event = new Event("click");
             const close = document.getElementById("closePreviewButton");
             close.dispatchEvent(event);
-
-            // window.closeCheckin();
           });
 
           topBar.appendChild(retryBtn);
@@ -352,7 +248,6 @@ const detectMeshAsakusaComponent = {
           endBtn.addEventListener("click", () => {
             // window.location.href = url;
             uiInited = false; // Reset uiInit in case
-            // window.closeAR();
           });
           endBtn.style.display = "block";
           topBar.appendChild(endBtn);
@@ -361,7 +256,6 @@ const detectMeshAsakusaComponent = {
 
       // Instruction UI (Scanning/Detected) related
       const changeDetectedUI = () => {
-        // console.log('change detected UI');
         createResultUI();
         const img = document.getElementById("vps-inst-img");
         const text = document.getElementById("vps-inst-text");
@@ -410,7 +304,6 @@ const detectMeshAsakusaComponent = {
           setTimeout(() => {
             photoText.style.opacity = 1;
             document.addEventListener("click", function (event) {
-              // console.log('Screen clicked!');
               videoInst.style.display = "none";
             });
           }, 1000);
@@ -423,26 +316,17 @@ const detectMeshAsakusaComponent = {
 
       switch (wayspotTitle) {
         case "雷門":
-          // console.log('Mesh detected: 雷門');
           changeDetectedUI();
 
           container.setAttribute("visible", "true");
           container.object3D.position.copy(position);
           container.object3D.quaternion.copy(rotation);
 
-          //this.raijinPos.setAttribute('visible', 'true')
-
           //// Real ////
           this.raijinPos.object3D.position.x += 0;
           this.raijinPos.object3D.position.y += 2.5;
           this.raijinPos.object3D.position.z -= 10;
           //// Real ////
-
-          //// Debug ////
-          // this.raijinPos.object3D.position.x -= 0
-          // this.raijinPos.object3D.position.y += 2
-          // this.raijinPos.object3D.position.z -= 15
-          //// Debug ////
 
           // Get world position of entityB
           var worldPositionB = new THREE.Vector3();

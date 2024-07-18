@@ -5,7 +5,6 @@ const lookAtYasakusaComponent = {
     const el = this.el.object3D;
     const vec = new THREE.Vector3();
     targetEl.getWorldDirection(vec);
-    // vec.x = 0.0;
     vec.y = 0;
 
     const additionalRotation = THREE.MathUtils.degToRad(10);

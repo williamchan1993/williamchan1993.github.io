@@ -1,37 +1,5 @@
 let loopTimes = 0;
 let uiInited = false;
-let targetBadge = "";
-
-// Wireframe Texture for debug
-const discoWireframeMaterial = new THREE.ShaderMaterial({
-  uniforms: {
-    timeMsec: { value: 1.0 },
-  },
-  vertexShader: `
-  varying vec2 vUv;
-
-  void main() {
-    vUv = uv;
-    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-    gl_Position = projectionMatrix * mvPosition;
-  }
-  `,
-  fragmentShader: `
-  uniform float timeMsec;
-  varying vec2 vUv;
-
-  void main(void) {
-    vec2 position = - 1.0 + 2.0 * vUv;
-
-    float red = abs(sin(position.x * position.y + timeMsec / 5.0));
-    float green = abs(sin(position.x * position.y + timeMsec / 4.0));
-    float blue = abs(sin(position.x * position.y + timeMsec / 3.0));
-    gl_FragColor = vec4(red, green, blue, 0.5);
-  }
-  `,
-  transparent: true,
-  wireframe: true,
-});
 
 // Detects a VPS node, downloads its mesh and places it on top of the real world
 const detectMeshRyogokuComponent = {
@@ -141,10 +109,8 @@ const detectMeshRyogokuComponent = {
       window.history.back(); // should change back to 2D Map URL in final
     };
 
-    //console.log('Try find Mesh: ' + window._startAR.title)
     const params = new URLSearchParams(document.location.search.substring(1));
     const waypoint = params.get("scene") ? params.get("scene") : null; // world-map
-    //console.log("Found waypoint from url: " + waypoint);
 
     const startScanning = ({ detail }) => {
       console.log("start Scanning");
@@ -164,42 +130,14 @@ const detectMeshRyogokuComponent = {
         return;
       }
       const { bufferGeometry, position, rotation } = detail;
-
-      // //// Script for showing Wireframe Mesh ////
-      // const texture = null;
-      // this.threeMaterial = new THREE.MeshBasicMaterial({
-      //   vertexColors: !texture,
-      //   wireframe: false,
-      //   visible: true,
-      //   transparent: true,
-      //   map: texture,
-      // });
-
-      // mesh = new THREE.Mesh(bufferGeometry, this.threeMaterial); // construct VPS mesh
-
-      // // add mesh to A-Frame scene
-      // this.meshEl = document.createElement('a-entity')
-      // this.meshEl.id = 'vps-mesh'
-      // mesh.material = discoWireframeMaterial
-      // this.meshEl.object3D.add(mesh)
-      // this.meshEl.object3D.position.copy(position)
-      // this.meshEl.object3D.quaternion.copy(rotation)
-      // this.meshEl.visible = true  // hide by default
-      // this.meshEl.object3D.children[0].material.opacity = 0.4
-      // scene.prepend(this.meshEl)
-      // document.getElementById('vps-mesh').object3D.visible = true
-      // //// Script for showing Wireframe Mesh ////
-
       rikishi.setAttribute("visible", "true");
 
       const animationLoop = () => {
-        //console.log("looped  TeppouRERE")
         loopTimes = 0;
         changeEffectPositionB2();
       };
 
       function changeRikishiEndAnimation() {
-        //console.log("changeRikishiEndAnimation")
         rikishi.setAttribute(
           "animation-mixer",
           "clip: TeppouRERE; loop: repeat"
@@ -209,7 +147,6 @@ const detectMeshRyogokuComponent = {
 
       const RikishiAnimation4 = () => {
         // Start Turn
-        //console.log("RikishiAnimation4")
         const currentRotation = rikishi.getAttribute("rotation");
         rikishi.setAttribute("animation__rotate2", {
           property: "rotation.y",
@@ -222,7 +159,6 @@ const detectMeshRyogokuComponent = {
 
       const RikishiAnimation3 = () => {
         // Drops
-        //console.log("RikishiAnimation3")
         const targetPosition = {
           x: rikishi.object3D.position.x - 0,
           y: rikishi.object3D.position.y - 4,
@@ -239,7 +175,6 @@ const detectMeshRyogokuComponent = {
 
       const RikishiAnimation2 = () => {
         // Rise to top and start increase size
-        //console.log("RikishiAnimation2")
         const targetPosition = {
           x: rikishi.object3D.position.x - 1,
           y: rikishi.object3D.position.y + 3,
@@ -264,7 +199,6 @@ const detectMeshRyogokuComponent = {
 
       const RikishiAnimation1 = () => {
         // Start Whole Animation and stay a ground pos
-        //console.log("RikishiAnimation1")
         rikishi.setAttribute("animation-mixer", "clip: Whole_02; loop: once"); // Start Whole animation
         rikishi.addEventListener(
           "animation-finished",
@@ -280,49 +214,15 @@ const detectMeshRyogokuComponent = {
 
       switch (waypoint) {
         case "ryougoku":
-          wayspotTitle = "538c8b1f6fe9470e82aaca1aeb517571.107"; //801d49f165964cad8071ae3c888d4000.107 //7f44e9cbe9a24bd9b28b1870da9c4265.107
-          name = "The Statue of Sumo Wrestler";
-          hint = "../assets/ryogoku_cover-x91mx7ibj9.png";
-          console.log(waypoint + " " + name + " " + wayspotTitle);
+          wayspotTitle = "538c8b1f6fe9470e82aaca1aeb517571.107";
           break;
         default:
-          console.log("No matching wayspot with same title");
           wayspotTitle = "538c8b1f6fe9470e82aaca1aeb517571.107";
-          name = "The Statue of Sumo Wrestler";
-          hint = "../assets/ryogoku_cover-x91mx7ibj9.png";
-          console.log(waypoint + " " + name + " " + wayspotTitle);
-      }
-
-      // Storage related (May need to change to DB)
-      function getAllSavedWaypointFromLocalStorage() {
-        // Retrieve the list of from local storage
-        const stringList = JSON.parse(localStorage.getItem("badge")) || [];
-        return stringList;
-      }
-
-      function saveBadgeToLocalStorage(newBadge) {
-        // Retrieve existing list from local storage
-        let badgeList = JSON.parse(localStorage.getItem("badge")) || [];
-
-        // Check if the new string exists in the list
-        if (!badgeList.includes(newBadge)) {
-          // If it doesn't exist, push the new string to the list
-          badgeList.push(newBadge);
-
-          // Save the updated list back to local storage
-          localStorage.setItem("badge", JSON.stringify(badgeList));
-
-          console.log(`Badge '${newBadge}' newly got.`);
-        } else {
-          console.log(`Badge '${newBadge}' already got before.`);
-        }
       }
 
       // Result UI related
       function createResultUI() {
-        //console.log("Trying createResultUI()")
         if (!uiInited) {
-          //console.log("Entering createResultUI()")
           uiInited = true;
           console.log("Init UI");
           document.getElementById("imagePreview").style =
@@ -343,7 +243,6 @@ const detectMeshRyogokuComponent = {
           shareButton.addEventListener("click", () => {
             // Trigger the click event on button1
             console.log("click share");
-            // window.share();
             existingButton.click();
           });
           shareButton.addEventListener("contextmenu", function (event) {
@@ -357,10 +256,8 @@ const detectMeshRyogokuComponent = {
           placeButton.addEventListener("click", () => {
             // Trigger the click event on button1
             console.log("click share");
-            // window.showStampDetail();
             const detailLayer = document.querySelector(".layer");
             detailLayer.style.display = "flex";
-            // existingButton.click();
           });
           placeButton.addEventListener("contextmenu", function (event) {
             event.preventDefault();
@@ -368,7 +265,6 @@ const detectMeshRyogokuComponent = {
 
           const btnlearnmore = document.getElementById("btn-learn-more");
           btnlearnmore.addEventListener("click", () => {
-            // window.showLearnMore("https://www.gotokyo.org/en/destinations/eastern-tokyo/ryogoku/index.html");
             window.open(
               "https://www.gotokyo.org/en/destinations/eastern-tokyo/ryogoku/index.html",
               "_blank"
@@ -404,8 +300,6 @@ const detectMeshRyogokuComponent = {
             var event = new Event("click");
             const close = document.getElementById("closePreviewButton");
             close.dispatchEvent(event);
-
-            // window.closeCheckin();
           });
 
           topBar.appendChild(retryBtn);
@@ -415,36 +309,6 @@ const detectMeshRyogokuComponent = {
           );
           const waypoint = params.get("scene") ? params.get("scene") : null; // world-map
           console.log("Found waypoint from url: " + waypoint);
-
-          // Create and append endBtn
-          // let foundBadge = false;
-          // for (const badge of getAllSavedWaypointFromLocalStorage()) {
-          //   if (badge === waypoint) {
-          //     console.log(`String '${waypoint}' found in the list.`);
-          //     foundBadge = true;
-          //     break; // Exit the loop if the string is found
-          //   }
-          // }
-
-          // let url = "";
-          // switch (waypoint) {
-          //   case "asakusa":
-          //     url = "https://tokyo-machitabi-ar.web.app/checkin/kaminari";
-          //     targetBadge = "asakusaBadge";
-          //     break;
-          //   case "ryogoku":
-          //     url = "https://tokyo-machitabi-ar.web.app/checkin/rikishi";
-          //     targetBadge = "ryogokuBadge";
-          //     break;
-          //   case "hamarikyu":
-          //     url = "https://tokyo-machitabi-ar.web.app/checkin/hamarikyu";
-          //     targetBadge = "hamarikyuBadge";
-          //     break;
-          //   default:
-          //     url = "https://tokyo-machitabi-ar.web.app/checkin/hachiko";
-          //     targetBadge = "shibuyaBadge";
-          //     break;
-          // }
 
           const endBtn = document.getElementById("endBtn");
           endBtn.addEventListener("contextmenu", function (event) {
@@ -457,21 +321,6 @@ const detectMeshRyogokuComponent = {
           });
           endBtn.style.display = "block";
           topBar.appendChild(endBtn);
-
-          // if (!foundBadge) {
-          //   // Create and append badge
-          //   saveBadgeToLocalStorage(waypoint);
-          //   console.log("found badge");
-          //   const badge = document.getElementById(targetBadge);
-          //   badge.classList.add("badge");
-          //   badge.style.display = "block";
-          //   badge.addEventListener("contextmenu", function (event) {
-          //     event.preventDefault();
-          //   });
-          //   topBar.appendChild(badge);
-          // }
-
-          // window.openCheckin();
         } else {
           //console.log("Didn't run createResultUI()")
         }
@@ -532,7 +381,6 @@ const detectMeshRyogokuComponent = {
               videoInst.style.display = "none";
             });
           }, 1000);
-          //
         }, 500);
         setTimeout(function () {
           const vpsInstLayer = document.getElementById("vps-inst");
@@ -555,12 +403,6 @@ const detectMeshRyogokuComponent = {
           rikishi.object3D.position.z -= 0.5;
           //// Real ////
 
-          //// Debug ////
-          // rikishi.object3D.position.x -= 0
-          // rikishi.object3D.position.y += 0.85
-          // rikishi.object3D.position.z -= 6
-          //// Debug ////
-
           setTimeout(RikishiAnimation1, 2000);
           break;
         default:
@@ -570,8 +412,6 @@ const detectMeshRyogokuComponent = {
       meshFound = true;
     };
 
-    // xrmesh events
-    //this.el.sceneEl.addEventListener("xrprojectwayspotfound", foundWayspot);
     this.el.sceneEl.addEventListener("xrprojectwayspotscanning", startScanning);
     this.el.sceneEl.addEventListener("xrmeshfound", foundMesh);
   },

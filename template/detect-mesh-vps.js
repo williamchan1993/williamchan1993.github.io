@@ -1,38 +1,19 @@
 let uiInited = false;
-let targetBadge = "";
 
 const detectMeshVpsComponent = {
   init() {
     const scene = this.el.sceneEl;
     scene.emit("recenter");
-    const mapBtn = document.getElementById("map-btn");
     this.container = document.getElementById("container");
     this.field = document.getElementById("field");
     this.model = document.getElementById("model"); 
-    const modelAnim = document.getElementById("anim");
-    const model = document.getElementById("model");
-    const pointA = document.getElementById("pointA");
-    const pointB = document.getElementById("pointB");
-    const pointC = document.getElementById("pointC");
-    const pointD = document.getElementById("pointD");
-    const pointE = document.getElementById("pointE");
-
-    // change Position of PointD (Can be removed in current version)
-    const newPointDPos = calculateIntermediatePoint(
-      pointC.object3D.position,
-      pointE.object3D.position,
-      0.9
-    );
-    // console.log("new D: " + newPointDPos.x + " " + newPointDPos.y)
-    pointD.setAttribute("position", `${newPointDPos.x} 0 ${newPointDPos.y}`);
-
     let meshFound = false;
-    let mesh = null;
     this.ok = false;
-
+    this.stage = 0;
     uiInited = false; // Reset uiInit in case
 
-    // Init Elements
+    // ローディング画面関連
+    // Loading UI related
     const loadImage = document.getElementById("requestingCameraPermissions");
     if (loadImage) {
       loadImage.style.display = "none";
@@ -46,7 +27,7 @@ const detectMeshVpsComponent = {
       // Append img to the parent container
       loadBackground.appendChild(topImage);
     }
-
+    
     const backBtn = document.getElementById("back-btn");
     backBtn.addEventListener("click", () => {
       uiInited = false; // Reset uiInit in case
@@ -57,7 +38,48 @@ const detectMeshVpsComponent = {
       window.history.back(); // should change back to 2D Map URL in final
     };
 
-    // Moves Model from one Point to another Point within specific duration
+    ///////////////////////////
+    ////   共通Function    ////
+    /// Common Functions  ////
+    //////////////////// /////
+
+    // モデルとアニメーション登録
+    // Model and Animation reference
+    const modelAnim = document.getElementById("anim");
+    const model = document.getElementById("model");
+
+    // モデル移動用ポイント
+    // Points for moving references
+    const pointA = document.getElementById("pointA");
+    const pointB = document.getElementById("pointB");
+    const pointC = document.getElementById("pointC");
+    
+    // ポイント位置調整用
+    // Adjust point position
+    const newPointPos = calculateIntermediatePoint(
+      pointA.object3D.position,
+      pointB.object3D.position,
+      0.9
+    );
+    pointC.setAttribute("position", `${newPointPos.x} 0 ${newPointPos.y}`);
+    
+    // ポイント位置調整機能
+    // Point position adjust function
+    function calculateIntermediatePoint(pointX, pointY, percentage) {
+        var _pointX = new THREE.Vector2(pointX.x, pointX.z);
+        var _pointY = new THREE.Vector2(pointY.x, pointY.z);
+  
+        // Calculate the intermediate point at 95% of the distance
+        var pointZ = new THREE.Vector2(
+          _pointX.x + percentage * (_pointY.x - _pointX.x),
+          _pointX.y + percentage * (_pointY.y - _pointX.y)
+        );
+  
+        return pointZ;
+      }
+
+    // モデル移動機能
+    // Move model function
     function moveModel(startPoint, endPoint, duration) {
       model.setAttribute("position", startPoint);
       // Calculate the rotation to point towards the end point
@@ -85,6 +107,42 @@ const detectMeshVpsComponent = {
       }, duration);
     }
 
+    // モデルTransform変更機能
+    // Change Transform function
+    const transformModel = () => {
+        // Position 変更, Change Position
+        const targetPosition = {
+            x: model.object3D.position.x - 1,
+            y: model.object3D.position.y + 3,
+            z: model.object3D.position.z,
+        };
+        model.setAttribute("animation__position", {
+            property: "position",
+            dur: 460,
+            to: targetPosition,
+            easing: "easeOutSine",
+        });
+
+        // Scale 変更, Change Scale
+        model.setAttribute("animation__scale", {
+            property: "scale",
+            dur: 460,
+            to: "0.95 0.95 0.95",
+            easing: "easeOutSine",
+        });
+
+        // Rotation 変更, Change Rotation
+        const currentRotation = model.getAttribute("rotation");
+        rikishi.setAttribute("animation__rotate2", {
+          property: "rotation.y",
+          from: `${currentRotation.y}`,
+          to: `${currentRotation.y + 60}`,
+          dur: 400,
+        });
+    };
+
+    // モデルアニメーション連続プレイ機能
+    // Play Animation in sequence function
     function playAnimationsSequentially() {
       // List of animation names in the order to play them
       var currentIndex = 0;
@@ -127,19 +185,32 @@ const detectMeshVpsComponent = {
       playNextAnimation(0);
     }
 
-    function calculateIntermediatePoint(pointX, pointY, percentage) {
-      var _pointX = new THREE.Vector2(pointX.x, pointX.z);
-      var _pointY = new THREE.Vector2(pointY.x, pointY.z);
+    // アニメーションプレイ
+    // Play Animation Once
+    const playAnimationOnce = () => {
+        // Start Whole Animation and stay a ground pos
+        model.setAttribute("animation-mixer", "clip: Whole_02; loop: once"); // Start Whole animation
+        model.addEventListener(
+            "animation-finished",
+            changeModelEndAnimation
+        );
+        setTimeout(RikishiAnimation2, 1050);  // Next animation 次のアニメーション
+    };
 
-      // Calculate the intermediate point at 95% of the distance
-      var pointZ = new THREE.Vector2(
-        _pointX.x + percentage * (_pointY.x - _pointX.x),
-        _pointX.y + percentage * (_pointY.y - _pointX.y)
-      );
-
-      return pointZ;
+    // アニメーションループ
+    // Animation loop
+    function loopModelAnimation() {
+        model.setAttribute(
+            "animation-mixer",
+            "clip: TeppouRERE; loop: repeat"
+        );
+        model.addEventListener("animation-loop", animationLoop);
     }
 
+    ////////////////////////////
+    //// スキャンイベント関連 ////
+    // Related to scan events //
+    ////////////////////////////
 
     const params = new URLSearchParams(document.location.search.substring(1));
     const waypoint = params.get("scene") ? params.get("scene") : null; // world-map
@@ -173,6 +244,7 @@ const detectMeshVpsComponent = {
           name = "Hama-rikyu Gardens";
       }
 
+      // 結果UI関連
       // Result UI related
       function createResultUI() {
         if (!uiInited) {
@@ -196,7 +268,6 @@ const detectMeshVpsComponent = {
           shareButton.addEventListener("click", () => {
             // Trigger the click event on button1
             console.log("click share");
-            window.share();
             existingButton.click();
           });
           shareButton.addEventListener("contextmenu", function (event) {
@@ -210,7 +281,6 @@ const detectMeshVpsComponent = {
           placeButton.addEventListener("click", () => {
             // Trigger the click event on button1
             console.log("click share");
-            window.showStampDetail();
             const detailLayer = document.querySelector(".layer");
             detailLayer.style.display = "flex";
             // existingButton.click();
@@ -221,7 +291,6 @@ const detectMeshVpsComponent = {
 
           const btnlearnmore = document.getElementById("btn-learn-more");
           btnlearnmore.addEventListener("click", () => {
-            window.showLearnMore("https://www.gotokyo.org/en/destinations/central-tokyo/tsukiji/index.html");
             window.open(
               "https://www.gotokyo.org/en/destinations/central-tokyo/tsukiji/index.html",
               "_blank"
@@ -257,8 +326,6 @@ const detectMeshVpsComponent = {
             var event = new Event("click");
             const close = document.getElementById("closePreviewButton");
             close.dispatchEvent(event);
-
-            window.closeCheckin();
           });
 
           topBar.appendChild(retryBtn);
@@ -275,15 +342,13 @@ const detectMeshVpsComponent = {
           endBtn.addEventListener("click", () => {
             // window.location.href = url;
             uiInited = false; // Reset uiInit in case
-            window.closeAR();
           });
           endBtn.style.display = "block";
           topBar.appendChild(endBtn);
-
-          // window.openCheckin();
         }
       }
 
+      // スキャン関連UI生成
       // Instruction UI (Scanning/Detected) related
       const changeDetectedUI = () => {
         console.log("change detected UI");
@@ -348,30 +413,28 @@ const detectMeshVpsComponent = {
       };
 
       switch (wayspotTitle) {
-        case "c6d06f5b9d414b2ea3208037a0c3d9fd.107":
-          // console.log('Mesh detected: 浜離宮');
+        case "vps-name": // 8thwallのVPS名前を入れる // Input the 8thwall VPS name 
+          // VPS認識成功時の挙動
+          // Actions when VPS detected
           changeDetectedUI();
 
           this.container.setAttribute("visible", "true");
           this.container.object3D.position.copy(position);
           this.container.object3D.quaternion.copy(rotation);
 
-          //// Real ////
+          // container内の内容の位置・回転変更
+          // Change the position and rotation of contents in container
           this.field.object3D.position.x += 2;
           this.field.object3D.position.y -= 3;
           this.field.object3D.position.z -= 7;
 
           moveModel(pointA.object3D.position, pointB.object3D.position, 3000);
-          // console.log("from A to B")
 
           setTimeout(function () {
-            // console.log("from C to E")
             moveModel(pointC.object3D.position, pointE.object3D.position, 2000);
           }, 3100);
 
           setTimeout(function () {
-            // console.log("playAnimationsSequentially")
-            //moveBusho(pointD.object3D.position, pointE.object3D.position, 400)
             playAnimationsSequentially();
           }, 4600);
           break;
@@ -385,6 +448,62 @@ const detectMeshVpsComponent = {
     // xrmesh events
     this.el.sceneEl.addEventListener("xrprojectwayspotscanning", startScanning);
     this.el.sceneEl.addEventListener("xrmeshfound", foundMesh);
+  },
+  /////////////////////////////////
+  //// tick関連、repeatイベント ////
+  //// tick and repeat events  ////
+  /////////////////////////////////
+  tick(time) {
+    // 浅草寺の雷神で使ったカメラ位置・角度によるモデル移動loop
+    // Model movement loop referencing camera position and angle used in Asakusa Temple
+    const currentTime = performance.now();
+    deltaTime = (currentTime - previousTime) / 16; // Convert to seconds
+    previousTime = currentTime;
+
+    if (this.stage !== 0) {
+      // Frameごとに各カメラオブジェクトの位置更新
+      this.camera_topleft.object3D.getWorldPosition(cameraPosition);
+      this.camera_front.object3D.getWorldPosition(cameraFrontPosition);
+      this.camera_middle.object3D.getWorldPosition(cameraMiddlePosition);
+      this.raijin.object3D.getWorldPosition(modelPosition);
+
+      if (this.stage === 1) {
+        distanceM = cameraMiddlePosition.distanceTo(modelPosition);
+        if (distanceM <= 0.02) {
+          this.stage = 2;
+        }
+        this.prevPosition = cameraMiddlePosition;
+        this.raijin.object3D.position.lerp(
+          this.prevPosition,
+          this.raijinSpeed * deltaTime
+        );
+      } else if (this.stage === 2) {
+        distanceFR = cameraFrontPosition.distanceTo(modelPosition);
+        if (distanceFR <= 0.01) {
+          this.raijinSpeed = 0.015;
+        }
+        this.prevPosition = cameraFrontPosition;
+        this.raijin.object3D.position.lerp(
+          this.prevPosition,
+          this.raijinSpeed * deltaTime
+        );
+      } else if (this.stage === 3) {
+        distanceTF = cameraPosition.distanceTo(modelPosition);
+        if (distanceTF < 0.2) this.raijinSpeed = 0.015;
+        this.prevPosition = cameraPosition;
+        this.raijin.object3D.position.lerp(
+          this.prevPosition,
+          this.raijinSpeed * deltaTime
+        );
+      } else if (this.stage === 4) {
+        distanceM = cameraMiddlePosition.distanceTo(modelPosition);
+        this.prevPosition = cameraMiddlePosition;
+        this.raijin.object3D.position.lerp(
+          this.prevPosition,
+          this.raijinSpeed * deltaTime
+        );
+      }
+    }
   },
 };
 
