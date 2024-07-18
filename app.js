@@ -3,7 +3,7 @@
 // app.js is the main entry point for your 8th Wall app. Code here will execute after head.html
 // is loaded, and before body.html is loaded.
 
-import "./main.css";
+// import "./main.css";
 
 // Each location scene related scripts
 import { detectMeshRyogokuComponent } from "./components/detect-mesh-ryogoku.js";
