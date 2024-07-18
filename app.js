@@ -27,7 +27,8 @@ AFRAME.registerComponent("look-at-y-asakusa", lookAtYasakusaComponent);
 const params = new URLSearchParams(document.location.search.substring(1));
 const s = params.get("scene") ? params.get("scene") : "shibuya"; // Can change to 404 page when false
 console.log("s: " + s)
-document.body.insertAdjacentHTML("beforeend", require(`./scenes/${s}.html`));
+const root = document.getElementById("ar");
+root.insertAdjacentHTML("beforeend", require(`./scenes/${s}.html`));
 
 // Load scene manually
 // document.body.insertAdjacentHTML('beforeend', require('./scenes/detect-mesh.html'))
