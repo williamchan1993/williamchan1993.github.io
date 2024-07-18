@@ -6,20 +6,20 @@
 import "./main.css";
 
 // Each location scene related scripts
-import { detectMeshRyogokuComponent } from "./components/detect-mesh-ryogoku";
+import { detectMeshRyogokuComponent } from "./components/detect-mesh-ryogoku.js";
 AFRAME.registerComponent("detect-mesh-ryogoku", detectMeshRyogokuComponent);
-import { detectMeshAsakusaComponent } from "./components/detect-mesh-asakusa";
+import { detectMeshAsakusaComponent } from "./components/detect-mesh-asakusa.js";
 AFRAME.registerComponent("detect-mesh-asakusa", detectMeshAsakusaComponent);
-import { detectMeshHamarikyuComponent } from "./components/detect-mesh-hamarikyu";
+import { detectMeshHamarikyuComponent } from "./components/detect-mesh-hamarikyu.js";
 AFRAME.registerComponent("detect-mesh-hamarikyu", detectMeshHamarikyuComponent);
-import { dogControlComponent } from "./components/dog-control";
+import { dogControlComponent } from "./components/dog-control.js";
 AFRAME.registerComponent("dog-control", dogControlComponent);
 
 // look at Y
-import { lookAtYComponent } from "./components/lookAtY";
+import { lookAtYComponent } from "./components/lookAtY.js";
 AFRAME.registerComponent("look-at-y", lookAtYComponent);
 // look at Y specific for Asakusa Scene
-import { lookAtYasakusaComponent } from "./components/lookAtY_asakusa";
+import { lookAtYasakusaComponent } from "./components/lookAtY_asakusa.js";
 AFRAME.registerComponent("look-at-y-asakusa", lookAtYasakusaComponent);
 
 // Load scene using URL params
