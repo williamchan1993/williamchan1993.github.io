@@ -28,7 +28,23 @@ const params = new URLSearchParams(document.location.search.substring(1));
 const s = params.get("scene") ? params.get("scene") : "shibuya"; // Can change to 404 page when false
 console.log("s: " + s)
 const root = document.getElementById("ar");
-root.insertAdjacentHTML("beforeend", require(`./scenes/${s}.html`));
+async function loadExternalContent(s) {
+  try {
+      // Fetch the content.html file
+      const response = await fetch(`./scenes/${s}.html`);
+      // Ensure the fetch was successful
+      if (!response.ok) {
+          throw new Error('Network response was not ok');
+      }
+      // Get the text content from the response
+      const content = await response.text();
+      // Insert the fetched HTML into the container
+      root.insertAdjacentHTML("beforeend", content);
+  } catch (error) {
+      console.error('Error fetching and inserting HTML:', error);
+  }
+}
+loadExternalContent(s);
 
 // Load scene manually
 // document.body.insertAdjacentHTML('beforeend', require('./scenes/detect-mesh.html'))
